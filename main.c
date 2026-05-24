@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -115,7 +116,8 @@ void *malloc(size_t size) {
         block->is_mmap = true;
     } else {
         BlockMeta *last = free_list;
-        block = find_free_block(&last, size);
+        block = find_free_space(&last, size);
+
         if (!block) {
             block = request_space(last, size);
             if (!block) {
@@ -178,4 +180,18 @@ void *realloc(void *ptr, size_t size) {
     memcpy(new_ptr, ptr, block->size);
     free(ptr);
     return new_ptr;
+}
+
+int main() {
+    int *ptr = malloc(sizeof(int));
+    if (ptr == NULL) {
+        printf("Memory alloc error\n");
+        return 1;
+    }
+
+    *ptr = 4;
+
+    printf("Value at memory location %p: %d\n", ptr, *ptr);
+
+    return 0;
 }
